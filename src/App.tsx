@@ -14,20 +14,12 @@ import {
   CompAlignTop,
   Copy,
   Download,
-  Flare,
-  FrameTool,
-  GridAdd,
   Italic,
-  Keyframes,
-  MediaImage,
-  Menu,
   Minus,
   NavArrowDown,
-  NavArrowLeft,
   NavArrowUp,
   Plus,
   Strikethrough,
-  Text,
   Trash,
   Underline,
   Upload,
@@ -36,24 +28,14 @@ import {
   AddCircle,
   ViewGrid,
   GridRemove,
-  Instagram,
-  Facebook,
-  YouTube,
-  Circle,
-  Square,
 } from "iconoir-react";
-import { ReactNode, useEffect, useRef } from "react";
-
-type Size = {
-  label: string;
-  size: `${number} x ${number} px`;
-  icon: ReactNode;
-};
-
-type Shape = {
-  label: string;
-  icon: ReactNode;
-};
+import { useEffect, useRef } from "react";
+import ColorPicker from "./components/ColorPicker";
+import Navbar from "./components/Navbar";
+import FloatMenu from "./components/FloatMenu";
+import ZoomOptions from "./components/ZoomOptions";
+import SidebarMenu from "./components/SidebarMenu";
+import { useCanvasProperties } from "./store";
 
 type Font = {
   label: string;
@@ -62,67 +44,6 @@ type Font = {
 type Weight = {
   label: string;
 };
-
-const DEFAULT_SHAPES: Shape[] = [
-  {
-    label: "Rectangle",
-    icon: <FrameTool />,
-  },
-  {
-    label: "Circle",
-    icon: <Circle />,
-  },
-  {
-    label: "Square",
-    icon: <Square />,
-  },
-];
-
-const DEFAULT_SIZES: Size[] = [
-  {
-    label: "Instagram Post",
-
-    size: "1080 x 1080 px",
-    icon: <Instagram />,
-  },
-  {
-    label: "Instagram Story",
-
-    size: "1080 x 1920 px",
-    icon: <Instagram />,
-  },
-  {
-    label: "Instagram Ad",
-
-    size: "1080 x 1350 px",
-    icon: <Instagram />,
-  },
-  {
-    label: "Facebook Post",
-    size: "940 x 788 px",
-    icon: <Facebook />,
-  },
-  {
-    label: "Facebook Cover",
-    size: "851 x 315 px",
-    icon: <Facebook />,
-  },
-  {
-    label: "Facebook Ad",
-    size: "1200 x 628 px",
-    icon: <Facebook />,
-  },
-  {
-    label: "YouTube Thumbnail",
-    size: "1280 x 720 px",
-    icon: <YouTube />,
-  },
-  {
-    label: "YouTube Channel Art",
-    size: "2560 x 1440 px",
-    icon: <YouTube />,
-  },
-];
 
 const DEFAULT_FONTS: Font[] = [
   {
@@ -157,6 +78,9 @@ const DEFAULT_WEIGHTS: Weight[] = [
 export default function App() {
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
+  const { height, backgroundColor, width, updateBackgroundColor } =
+    useCanvasProperties();
+
   useEffect(() => {
     const contextMenu = contextMenuRef.current;
     if (!contextMenu) return;
@@ -188,121 +112,23 @@ export default function App() {
 
   return (
     <div className="w-screen h-screen bg-background">
-      <header className="w-full flex items-center justify-between p-2 bg-secondary h-navbar">
-        <div className="flex items-center gap-1  text-secondary">
-          <button className="p-2 hover:bg-primary rounded-lg hover:text-white">
-            <NavArrowLeft />
-          </button>
-
-          <button className="p-2 hover:bg-primary rounded-lg hover:text-white ">
-            <Menu />
-          </button>
-
-          <h4 className="text-lg font-medium">Playground untitled</h4>
+      <Navbar />
+      <div className="relative h-content w-full grid place-content-center">
+        <SidebarMenu />
+        <div
+          className="aspect-square p-2"
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+            backgroundColor,
+          }}
+        >
+          <img
+            src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80"
+            alt=""
+            className="object-cover w-full h-full"
+          />
         </div>
-
-        <div className="flex items-center gap-4">
-          <button className="px-4 p-2 rounded-lg text-xs bg-primary text-white flex items-center gap-2">
-            <span className="text-sm">
-              <Download />
-            </span>
-            <span>Download</span>
-          </button>
-        </div>
-      </header>
-      <div className="relative h-content w-full ">
-        <aside className="absolute flex flex-col top-4 left-4 bg-secondary p-2 rounded-xl">
-          <Tippy
-            placement="left"
-            offset={[0, 15]}
-            delay={[10, 10]}
-            content={
-              <span className="p-2 px-3 rounded-md font-semibold text-xs bg-secondary text-secondary">
-                Layout
-              </span>
-            }
-          >
-            <button className="p-2 hover:bg-primary text-primary rounded-lg">
-              <GridAdd />
-            </button>
-          </Tippy>
-
-          <button className="p-2 hover:bg-primary text-primary rounded-lg">
-            <Text />
-          </button>
-          <button className="p-2 hover:bg-primary text-primary rounded-lg">
-            <Upload />
-          </button>
-          <button className="p-2 hover:bg-primary text-primary rounded-lg">
-            <MediaImage />
-          </button>
-          <button className="p-2 hover:bg-primary text-primary rounded-lg">
-            <Keyframes />
-          </button>
-          <Tippy
-            placement="left"
-            offset={[0, 15]}
-            delay={[10, 10]}
-            interactive
-            content={
-              <div className="p-2 px-3 bg-secondary-color/25 backdrop-blur-2xl border border-gray-100/10 rounded-xl font-semibold text-xs  text-secondary w-48">
-                <header className="whitespace-nowrap mb-4">
-                  <h4 className="font-semibold text-sm">Choose a shape</h4>
-                </header>
-                {DEFAULT_SHAPES.map((shape) => (
-                  <button
-                    key={shape.label}
-                    className="flex items-center gap-4 w-full text-xs text-white hover:bg-primary p-2 rounded-lg whitespace-nowrap"
-                  >
-                    <span>{shape.icon}</span>
-                    <span>{shape.label}</span>
-                  </button>
-                ))}
-              </div>
-            }
-          >
-            <button className="p-2 hover:bg-primary text-primary rounded-lg">
-              <Flare />
-            </button>
-          </Tippy>
-          <Tippy
-            placement="left"
-            offset={[0, 15]}
-            delay={[10, 10]}
-            interactive
-            content={
-              <div className="p-2 px-3 font-semibold text-xs bg-secondary-color/25 backdrop-blur-2xl border border-gray-100/10 rounded-xl text-secondary">
-                <header>
-                  <h4 className="font-semibold text-sm">Choose a size</h4>
-                </header>
-                {DEFAULT_SIZES.map((size) => (
-                  <button
-                    key={size.label}
-                    className="flex items-center justify-between w-full text-xs text-white hover:bg-primary p-2 rounded-lg whitespace-nowrap"
-                  >
-                    <div className="flex gap-2 items-center mr-8 font-normal">
-                      <span>{size.icon}</span>
-                      <span className="text-sm">{size.label}</span>
-                    </div>
-
-                    <span className="text-gray-300">{size.size}</span>
-                  </button>
-                ))}
-              </div>
-            }
-          >
-            <button className="p-2 hover:bg-primary text-primary rounded-lg">
-              <FrameTool />
-            </button>
-          </Tippy>
-        </aside>
-
-        <img
-          src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80"
-          alt=""
-          className="h-[70%] aspect-square absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 object-cover"
-        />
-
         <aside
           className="w-contextMenu fixed bg-secondary-color/25 backdrop-blur-2xl border border-gray-100/10 rounded-xl hidden z-10"
           ref={contextMenuRef}
@@ -380,20 +206,8 @@ export default function App() {
             </button>
           </div>
         </aside>
-
-        <aside className="absolute left-1/2 -translate-x-1/2 flex gap-2 bottom-4">
-          <button className="p-2 bg-secondary hover:bg-primary text-primary rounded-lg">
-            <Minus />
-          </button>
-          <span className="p-2 px-4 bg-secondary text-secondary rounded-lg">
-            100%
-          </span>
-          <button className="p-2 bg-secondary hover:bg-primary text-primary rounded-lg">
-            <Plus />
-          </button>
-        </aside>
-
-        <aside className="absolute right-4 flex flex-col top-4 bg-secondary  rounded-xl w-designTools">
+        <ZoomOptions />
+        <FloatMenu className="right-4 flex flex-col top-4 rounded-xl w-designTools p-0">
           <section className="w-full p-4 flex flex-col gap-2 border-b-background border-b">
             <h4 className="text-sm text-white font-bold">Align</h4>
 
@@ -455,7 +269,7 @@ export default function App() {
                   interactive
                   offset={[0, 5]}
                   content={
-                    <div className="p-2  px-3 font-semibold text-xs bg-secondary-color/25 backdrop-blur-2xl border border-gray-100/10 rounded-xl text-secondary w-44">
+                    <div className="p-2 px-3 font-semibold text-xs bg-secondary-color/25 backdrop-blur-2xl border border-gray-100/10 rounded-xl text-secondary w-44">
                       {DEFAULT_WEIGHTS.map((weight) => (
                         <button
                           key={weight.label}
@@ -508,7 +322,27 @@ export default function App() {
               </div>
               <div className="flex w-full items-center gap-4 justify-between">
                 <span className="text-xs text-secondary w-[20%]">Color</span>
-                <label className="bg-background/50 text-white text-xs block aspect-square w-10 bg-orange-500 rounded-lg"></label>
+
+                <Tippy
+                  placement="left-end"
+                  trigger="click"
+                  interactive
+                  offset={[0, 5]}
+                  content={
+                    <div className="p-2 px-3 bg-secondary-color/25 backdrop-blur-2xl border border-gray-100/10 rounded-xl">
+                      <ColorPicker
+                        onInputChange={(color) => {
+                          updateBackgroundColor(color);
+                        }}
+                      />
+                    </div>
+                  }
+                >
+                  <div
+                    className="bg-background/50 text-white text-xs block aspect-square w-10 rounded-lg"
+                    style={{ backgroundColor }}
+                  ></div>
+                </Tippy>
               </div>
               <div className="flex w-full items-center gap-4 justify-between">
                 <span className="text-xs text-secondary w-[20%]">Align</span>
@@ -546,7 +380,7 @@ export default function App() {
               </div>
             </div>
           </section>
-        </aside>
+        </FloatMenu>
       </div>
     </div>
   );

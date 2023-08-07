@@ -105,15 +105,13 @@ export default function ColorPicker(props: ColorPickerProps) {
 
     if (onInputChange) {
       colorPickerInstance.on("color:change", (e: ColorObject) => {
-        onInputChange(e.hexString);
+        onInputChange(e.hex8String);
       });
     }
 
     return () => {
       if (onColorChange) colorPickerInstance.off("input:end");
       if (onInputChange) colorPickerInstance.off("color:change");
-
-      colorPickerInstance.destroy();
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

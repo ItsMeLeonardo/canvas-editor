@@ -12,7 +12,10 @@
   "dependencies": {
     "@jaames/iro": "^5.5.2",
     "@tippyjs/react": "^4.2.6",
+    "clsx": "^2.0.0",
     "iconoir-react": "^6.11.0",
+    "interactjs": "^1.10.18",
+    "jotai": "^2.2.3",
     "konva": "^9.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -28,6 +31,7 @@
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
+    "iro": "link:@types/@jaames/iro",
     "postcss": "^8.4.27",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
