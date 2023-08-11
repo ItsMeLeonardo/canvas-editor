@@ -12,30 +12,28 @@ import {
   CompAlignLeft,
   CompAlignRight,
   CompAlignTop,
-  Copy,
-  Download,
+  Underline,
   Italic,
   Minus,
-  NavArrowDown,
-  NavArrowUp,
   Plus,
   Strikethrough,
-  Trash,
-  Underline,
-  Upload,
-  Lock,
-  PasteClipboard,
-  AddCircle,
-  ViewGrid,
-  GridRemove,
 } from "iconoir-react";
-import { useEffect, useRef } from "react";
+import { Stage, Layer, Transformer, Rect } from "react-konva";
+import Konva from "konva";
+
 import ColorPicker from "./components/ColorPicker";
 import Navbar from "./components/Navbar";
 import FloatMenu from "./components/FloatMenu";
 import ZoomOptions from "./components/ZoomOptions";
 import SidebarMenu from "./components/SidebarMenu";
 import { useCanvasProperties } from "./store";
+import ContextMenu from "./components/ContextMenu";
+import { CANVAS_HEADER_HEIGHT } from "./constants/canvas-layout";
+import { useEffect, useRef, useState } from "react";
+import ImageFromUrl from "./components/ImageFromUrl";
+
+import { useCanvasElements } from "./store/CanvasElements";
+import RenderShape from "./components/RenderShape";
 
 type Font = {
   label: string;
@@ -75,137 +73,180 @@ const DEFAULT_WEIGHTS: Weight[] = [
   },
 ];
 
-export default function App() {
-  const contextMenuRef = useRef<HTMLDivElement>(null);
+type CanvasSize = {
+  width: number;
+  height: number;
+};
 
-  const { height, backgroundColor, width, updateBackgroundColor } =
+export default function App() {
+  const { height, backgroundColor, width, updateBackgroundColor, zoom } =
     useCanvasProperties();
 
+  const [canvasSize, setCanvasSize] = useState<CanvasSize>({
+    width: window.innerWidth,
+    height: window.innerHeight - CANVAS_HEADER_HEIGHT,
+  });
+
+  const { images, shapes, removeElement, currentElement, setCurrentElement } =
+    useCanvasElements();
+
+  const transformerRef = useRef<Konva.Transformer>(null);
+  const layerRef = useRef<Konva.Layer>(null);
+  const stageRef = useRef<Konva.Stage>(null);
+
   useEffect(() => {
-    const contextMenu = contextMenuRef.current;
-    if (!contextMenu) return;
+    const stage = stageRef.current;
+    if (!stage) return;
 
-    const showContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
+    const pointer = stage.getPointerPosition();
 
-      const left = e.clientX;
-      const top = e.clientY;
+    if (!pointer) return;
 
-      contextMenu.style.left = `${left}px`;
-      contextMenu.style.top = `${top}px`;
-      contextMenu.classList.remove("hidden");
+    const valueZoom = zoom / 100;
+
+    stage.scale({ x: valueZoom, y: valueZoom });
+
+    const newPos = {
+      x: valueZoom,
+      y: valueZoom,
+    };
+    stage.position(newPos);
+  }, [zoom]);
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setCanvasSize({
+        width: window.innerWidth,
+        height: window.innerHeight - CANVAS_HEADER_HEIGHT,
+      });
     };
 
-    const hideContextMenu = () => {
-      contextMenu.classList.add("hidden");
-    };
-
-    window.addEventListener("contextmenu", showContextMenu);
-
-    window.addEventListener("click", hideContextMenu);
+    window.addEventListener("resize", handleWindowResize);
 
     return () => {
-      window.removeEventListener("contextmenu", showContextMenu);
-      window.removeEventListener("click", hideContextMenu);
+      window.removeEventListener("resize", handleWindowResize);
     };
   }, []);
 
+  const canvasWidth = canvasSize.width;
+  const canvasHeight = canvasSize.height;
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    const layer = layerRef.current;
+    const transformer = transformerRef.current;
+
+    if (!stage || !layer || !transformer || !currentElement) return;
+
+    const handleDeselect = (e: Konva.KonvaEventObject<MouseEvent>) => {
+      const clickedOnEmpty = e.target === e.target.getStage();
+
+      if (clickedOnEmpty) {
+        setCurrentElement(null);
+      }
+    };
+
+    const currentNode = layer.findOne(`#${currentElement.id}`);
+
+    if (!currentNode) return;
+    transformer.nodes([currentNode]);
+
+    stage.on("click", handleDeselect);
+    layer.on("click", handleDeselect);
+
+    return () => {
+      stage.off("click", handleDeselect);
+      layer.off("click", handleDeselect);
+      transformer.nodes([]);
+    };
+  }, [currentElement, setCurrentElement]);
+
   return (
-    <div className="w-screen h-screen bg-background">
+    <div className="w-screen h-screen overflow-hidden bg-background">
       <Navbar />
-      <div className="relative h-content w-full grid place-content-center">
-        <SidebarMenu />
-        <div
-          className="aspect-square p-2"
-          style={{
-            width: `${width}px`,
-            height: `${height}px`,
-            backgroundColor,
+
+      <div className="relative h-content w-full grid place-content-center overflow-auto">
+        <Stage
+          width={canvasWidth}
+          height={canvasHeight}
+          draggable
+          ref={stageRef}
+          onWheel={(e) => {
+            // stop default scrolling
+            e.evt.preventDefault();
+            const stage = stageRef.current;
+            if (!stage) return;
+
+            const scaleBy = 1.05;
+
+            const oldScale = stage.scaleX();
+            const pointer = stage.getPointerPosition();
+
+            if (!pointer) return;
+
+            const mousePointTo = {
+              x: (pointer.x - stage.x()) / oldScale,
+              y: (pointer.y - stage.y()) / oldScale,
+            };
+
+            // how to scale? Zoom in? Or zoom out?
+            let direction = e.evt.deltaY > 0 ? 1 : -1;
+
+            // when we zoom on trackpad, e.evt.ctrlKey is true
+            // in that case lets revert direction
+            if (e.evt.ctrlKey) {
+              direction = -direction;
+            }
+
+            const newScale =
+              direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+            stage.scale({ x: newScale, y: newScale });
+
+            const newPos = {
+              x: pointer.x - mousePointTo.x * newScale,
+              y: pointer.y - mousePointTo.y * newScale,
+            };
+            stage.position(newPos);
           }}
         >
-          <img
-            src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80"
-            alt=""
-            className="object-cover w-full h-full"
-          />
-        </div>
-        <aside
-          className="w-contextMenu fixed bg-secondary-color/25 backdrop-blur-2xl border border-gray-100/10 rounded-xl hidden z-10"
-          ref={contextMenuRef}
-        >
-          <div className="flex flex-col border-b-gray-50/50 border-b p-2">
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <NavArrowUp />
-              </span>
-              <span>Bring forward</span>
-            </button>
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <Upload />
-              </span>
-              <span>Bring to front</span>
-            </button>
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <NavArrowDown />
-              </span>
-              <span>Bring backward</span>
-            </button>
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <Download />
-              </span>
-              <span>Bring to back</span>
-            </button>
-          </div>
-          <div className="flex flex-col border-b-gray-50/50 border-b p-2">
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <Trash />
-              </span>
-              <span>Delete</span>
-            </button>
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <Copy />
-              </span>
-              <span>Duplicate</span>
-            </button>
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <Lock />
-              </span>
-              <span>Lock</span>
-            </button>
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <AddCircle />
-              </span>
-              <span>Copy</span>
-            </button>
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <PasteClipboard />
-              </span>
-              <span>Paste</span>
-            </button>
-          </div>
-          <div className="flex flex-col p-2">
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <ViewGrid />
-              </span>
-              <span>Group</span>
-            </button>
-            <button className="w-full bg-transparent text-xs hover:bg-primary text-white p-2 flex gap-2 rounded-lg">
-              <span>
-                <GridRemove />
-              </span>
-              <span>Ungroup</span>
-            </button>
-          </div>
-        </aside>
+          <Layer ref={layerRef}>
+            <Rect
+              height={height}
+              width={width}
+              x={(canvasWidth - width) / 2}
+              y={(canvasHeight - height) / 2}
+              fill={backgroundColor}
+            />
+            {shapes.map((shape) => (
+              <RenderShape
+                key={shape.id}
+                shape={shape}
+                onClick={() => {
+                  setCurrentElement(shape.id);
+                }}
+              />
+            ))}
+
+            {images.map((image) => (
+              <ImageFromUrl
+                key={image.id}
+                {...image}
+                onClick={() => {
+                  setCurrentElement(image.id);
+                }}
+                onDblClick={() => {
+                  removeElement(image.id);
+                }}
+              />
+            ))}
+
+            <Transformer ref={transformerRef}></Transformer>
+          </Layer>
+        </Stage>
+        <SidebarMenu />
+        <ContextMenu />
+
         <ZoomOptions />
         <FloatMenu className="right-4 flex flex-col top-4 rounded-xl w-designTools p-0">
           <section className="w-full p-4 flex flex-col gap-2 border-b-background border-b">
