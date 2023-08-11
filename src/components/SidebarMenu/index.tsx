@@ -18,6 +18,13 @@ import { ReactNode } from "react";
 import { useCanvasProperties } from "../../store";
 import clsx from "clsx";
 
+import { useCanvasElements } from "../../store/CanvasElements";
+import {
+  CreateImageElement,
+  CreateShapeElement,
+} from "../../store/CanvasElements/canvas-elements";
+import { getCanvasCenter } from "../../utils/canvas-editor";
+
 type Size = {
   width: number;
   height: number;
@@ -32,20 +39,24 @@ type CanvasSize = {
 type Shape = {
   label: string;
   icon: ReactNode;
+  type: "rect" | "circle" | "square";
 };
 
 const DEFAULT_SHAPES: Shape[] = [
   {
     label: "Rectangle",
     icon: <FrameTool />,
+    type: "rect",
   },
   {
     label: "Circle",
     icon: <Circle />,
+    type: "circle",
   },
   {
     label: "Square",
     icon: <Square />,
+    type: "square",
   },
 ];
 
@@ -101,9 +112,13 @@ const IMAGES = [
   "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzJ8fGphcGFufGVufDB8fDB8fHww&auto=format&fit=crop&w=1500&q=60",
   "https://plus.unsplash.com/premium_photo-1674824835422-1447f5901086?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzd8fGphcGFufGVufDB8fDB8fHww&auto=format&fit=crop&w=1500&q=60",
   "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80",
+  "https://i.pinimg.com/236x/13/fe/6a/13fe6a479956ab94d6823687c67d1109.jpg",
+  "https://i.pinimg.com/236x/ca/7e/29/ca7e291a3d84c7753a439629e9ba807e.jpg",
 ];
 
 export default function SidebarMenu() {
+  const { addElement } = useCanvasElements();
+
   const halfLength = Math.ceil(IMAGES.length / 2);
 
   const listImage = [
@@ -150,12 +165,29 @@ export default function SidebarMenu() {
             <div className="grid grid-cols-2 gap-2">
               {listImage.map((images, index) => (
                 <div key={index} className="flex flex-col gap-2">
+                  pa
                   {images.map((image) => (
-                    <button className="" key={image}>
+                    <button
+                      className="group overflow-hidden rounded-md"
+                      key={image}
+                      onClick={() => {
+                        const { x, y } = getCanvasCenter();
+
+                        const imageElement: CreateImageElement = {
+                          type: "image",
+                          src: image,
+                          x,
+                          y,
+                          draggable: true,
+                        };
+                        addElement(imageElement);
+                      }}
+                      draggable
+                    >
                       <img
                         src={image}
                         alt="image"
-                        className="object-cover w-full h-auto rounded-md"
+                        className="object-cover w-full h-auto rounded-md transform group-hover:scale-110 transition-transform hover:rotate-2 duration-300"
                       />
                     </button>
                   ))}
@@ -186,6 +218,29 @@ export default function SidebarMenu() {
               <button
                 key={shape.label}
                 className="flex items-center gap-4 w-full text-xs text-white hover:bg-primary p-2 rounded-lg whitespace-nowrap"
+                onClick={() => {
+                  const shapeWidth = 150;
+                  const shapeHeight = 150;
+
+                  const x = window.innerWidth / 2 - shapeWidth / 2;
+                  const y = window.innerHeight / 2 - shapeHeight / 2;
+
+                  if (shape.type === "rect") {
+                    const shape: CreateShapeElement = {
+                      type: "shape",
+                      shapeType: "rect",
+                      width: shapeWidth,
+                      height: shapeHeight,
+                      fill: "#fff",
+                      strokeWidth: 1,
+                      x,
+                      y,
+                      stroke: "#000",
+                      draggable: true,
+                    };
+                    addElement(shape);
+                  }
+                }}
               >
                 <span>{shape.icon}</span>
                 <span>{shape.label}</span>
