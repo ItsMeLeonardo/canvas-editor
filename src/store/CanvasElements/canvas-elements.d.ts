@@ -27,6 +27,9 @@ export type TextElement = CanvasBaseElement & {
 };
 
 export type CreateTextElement = Omit<TextElement, "id">;
+export type UpdateTextElement = Partial<CreateTextElement> & {
+  id: string;
+};
 
 export type ShapeRect = {
   shapeType: "rect";
@@ -83,6 +86,14 @@ export type ShapeElement = CanvasBaseElement & {
 
 export type CreateShapeElement = Omit<ShapeElement, "id">;
 
+export type UpdateShapeElement = Partial<CreateShapeElement> & {
+  id: string;
+};
+
 export type CanvasElement = ImageElement | TextElement | ShapeElement;
 
 export type CreateCanvasElement = Omit<CanvasElement, "id">;
+
+export type UpdateCanvasElement = Partial<CreateCanvasElement> & {
+  id: string;
+};

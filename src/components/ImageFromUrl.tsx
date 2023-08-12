@@ -73,10 +73,10 @@ type Props = {
 } & KonvaImageProps;
 
 function ImageFromUrlComponent(props: Props, ref: ForwardedRef<Konva.Image>) {
-  const { src, ...imageProps } = props;
+  const { src, x = 0, y = 0, ...imageProps } = props;
   const [image] = useImage(src);
 
-  return <Image {...imageProps} ref={ref} image={image} />;
+  return <Image {...imageProps} x={x} y={y} ref={ref} image={image} />;
 }
 
 const ImageFromUrl = forwardRef<Konva.Image, Props>(ImageFromUrlComponent);

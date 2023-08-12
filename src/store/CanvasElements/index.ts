@@ -15,6 +15,7 @@ import type {
   CreateImageElement,
   CreateTextElement,
   CreateShapeElement,
+  UpdateCanvasElement,
 } from "./canvas-elements";
 import { generateId } from "../../utils";
 
@@ -103,6 +104,7 @@ export const addElementAtom = atom(
     const newCanvasElement = createCanvasElement(element);
     set(canvasElementsAtom, (prev) => ({
       ...prev,
+      currentElementId: newCanvasElement.id,
       elements: [...prev.elements, newCanvasElement],
     }));
   }
@@ -111,18 +113,23 @@ export const addElementAtom = atom(
 export const removeElementAtom = atom(null, (_, set, elementId: string) => {
   set(canvasElementsAtom, (prev) => ({
     ...prev,
+    currentElementId:
+      elementId === prev.currentElementId ? null : prev.currentElementId,
     elements: prev.elements.filter((e) => e.id !== elementId),
   }));
 });
 
 export const updateElementAtom = atom(
   null,
-  (_, set, element: CanvasElement) => {
+  (_, set, element: UpdateCanvasElement) => {
     set(canvasElementsAtom, (prev) => ({
       ...prev,
       elements: prev.elements.map((e) => {
         if (e.id === element.id) {
-          return element;
+          return {
+            ...e,
+            ...(element as CanvasElement),
+          };
         }
         return e;
       }),
@@ -133,7 +140,6 @@ export const updateElementAtom = atom(
 export const setCurrentElementAtom = atom(
   null,
   (_, set, elementId: string | null) => {
-    console.log({ elementId });
     set(canvasElementsAtom, (prev) => ({
       ...prev,
       currentElementId: elementId,

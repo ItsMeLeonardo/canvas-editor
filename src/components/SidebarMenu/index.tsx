@@ -232,10 +232,8 @@ export default function SidebarMenu() {
                       width: shapeWidth,
                       height: shapeHeight,
                       fill: "#fff",
-                      strokeWidth: 1,
                       x,
                       y,
-                      stroke: "#000",
                       draggable: true,
                     };
                     addElement(shape);
