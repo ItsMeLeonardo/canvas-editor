@@ -89,10 +89,14 @@ export default function ColorPicker(props: ColorPickerProps) {
           },
         },
         {
-          component: Iro.ui.Wheel,
+          component: Iro.ui.Slider,
           options: {
-            wheelLightness: false,
+            id: "hue-slider",
+            sliderType: "hue",
           },
+        },
+        {
+          component: Iro.ui.Box,
         },
       ],
     });
