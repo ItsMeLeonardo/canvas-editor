@@ -32,7 +32,7 @@ export default function FloatMenu(props: FloatMenuProps) {
       const target = event.target;
       if (!target || !menu) return;
       if (!(target instanceof HTMLElement)) return;
-      // keep the dragged position in the data-x/data-y attributes
+
       const dataX = target.getAttribute("data-x") ?? "0";
       const dataY = target.getAttribute("data-y") ?? "0";
       const x = parseFloat(dataX) + event.dx;
@@ -40,11 +40,8 @@ export default function FloatMenu(props: FloatMenuProps) {
 
       menu.style.transform = `translate(${x}px, ${y}px)`;
 
-      // translate the element
       target.setAttribute("data-x", x.toString());
       target.setAttribute("data-y", y.toString());
-
-      // update the posiion attributes
     }
 
     interact(dragArea).draggable({

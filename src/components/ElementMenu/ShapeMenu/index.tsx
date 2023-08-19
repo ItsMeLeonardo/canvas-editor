@@ -67,7 +67,7 @@ export default function ShapeMenu() {
             content={
               <div className="p-2 px-3 bg-secondary-color/25 backdrop-blur-2xl border border-gray-100/10 rounded-xl">
                 <ColorPicker
-                  onInputChange={(color) => {
+                  onChange={(color) => {
                     const updatedShape: UpdateShapeElement = {
                       stroke: color,
                       id: currentElement.id,
@@ -96,7 +96,7 @@ export default function ShapeMenu() {
             content={
               <div className="p-2 px-3 bg-secondary-color/25 backdrop-blur-2xl border border-gray-100/10 rounded-xl">
                 <ColorPicker
-                  onInputChange={(color) => {
+                  onChange={(color) => {
                     const updatedShape: UpdateShapeElement = {
                       id: currentElement.id,
                       fill: color,

@@ -1,124 +1,25 @@
-import { useEffect, useRef } from "react";
+import { ColorPicker as ColorPickerReact, useColor } from "react-color-palette";
+import "react-color-palette/css";
 
-import Iro from "@jaames/iro";
-
-type ColorPickerEvent = {
-  onColorChange?: (color: string) => void;
-  onInputChange?: (color: string) => void;
-};
-
-type ColorPickerProps = {
+type Props = {
   color?: string;
-} & ColorPickerEvent;
-
-type RGB = {
-  r: number;
-  g: number;
-  b: number;
+  onChange: (color: string) => void;
 };
 
-type RGBA = RGB & {
-  a: number;
-};
+export default function ColorPicker({ color, onChange }: Props) {
+  const [innerColor, setInnerColor] = useColor(color ?? "#000000");
 
-type HSL = {
-  h: number;
-  s: number;
-  l: number;
-};
+  return (
+    <div className="w-48">
+      <ColorPickerReact
+        color={innerColor}
+        onChange={(color) => {
+          setInnerColor(color);
 
-type HSLA = HSL & {
-  a: number;
-};
-
-type HSV = {
-  h: number;
-  s: number;
-  v: number;
-};
-
-type HSVA = HSV & {
-  a: number;
-};
-
-type ColorObject = {
-  hexString: string;
-  hex8String: string;
-  rgb: RGB;
-  rgba: RGBA;
-  rgbString: string;
-  rgbaString: string;
-  hsl: HSL;
-  hsla: HSLA;
-  hslString: string;
-  hslaString: string;
-  hsv: HSV;
-  hsva: HSVA;
-  red: number;
-  green: number;
-  blue: number;
-  alpha: number;
-  hue: number;
-  saturation: number;
-  value: number;
-  kelvin: number;
-};
-
-export default function ColorPicker(props: ColorPickerProps) {
-  const { color = "#fff", onColorChange, onInputChange } = props;
-
-  const colorPickerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const colorPicker = colorPickerRef.current;
-
-    if (!colorPicker) return;
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    const colorPickerInstance = new Iro.ColorPicker(colorPicker, {
-      width: 240,
-      height: 240,
-      color,
-      layout: [
-        {
-          component: Iro.ui.Slider,
-          options: {
-            // can also be 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
-            sliderType: "alpha",
-          },
-        },
-        {
-          component: Iro.ui.Slider,
-          options: {
-            id: "hue-slider",
-            sliderType: "hue",
-          },
-        },
-        {
-          component: Iro.ui.Box,
-        },
-      ],
-    });
-
-    if (onColorChange) {
-      colorPickerInstance.on("input:end", (e: ColorObject) => {
-        onColorChange(e.hexString);
-      });
-    }
-
-    if (onInputChange) {
-      colorPickerInstance.on("color:change", (e: ColorObject) => {
-        onInputChange(e.hex8String);
-      });
-    }
-
-    return () => {
-      if (onColorChange) colorPickerInstance.off("input:end");
-      if (onInputChange) colorPickerInstance.off("color:change");
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  return <div ref={colorPickerRef}></div>;
+          onChange(color.hex);
+        }}
+        hideInput
+      />
+    </div>
+  );
 }
