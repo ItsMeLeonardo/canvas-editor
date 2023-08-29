@@ -83,8 +83,10 @@ const IMAGES = [
   "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzJ8fGphcGFufGVufDB8fDB8fHww&auto=format&fit=crop&w=1500&q=60",
   "https://plus.unsplash.com/premium_photo-1674824835422-1447f5901086?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzd8fGphcGFufGVufDB8fDB8fHww&auto=format&fit=crop&w=1500&q=60",
   "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80",
-  "https://i.pinimg.com/236x/13/fe/6a/13fe6a479956ab94d6823687c67d1109.jpg",
-  "https://i.pinimg.com/236x/ca/7e/29/ca7e291a3d84c7753a439629e9ba807e.jpg",
+  "https://plus.unsplash.com/premium_photo-1674718013659-6930c469e641?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGphcGFufGVufDB8fDB8fHww&auto=format&fit=crop&w=1500&q=60",
+  "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzJ8fGphcGFufGVufDB8fDB8fHww&auto=format&fit=crop&w=1500&q=60",
+  "https://plus.unsplash.com/premium_photo-1674824835422-1447f5901086?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzd8fGphcGFufGVufDB8fDB8fHww&auto=format&fit=crop&w=1500&q=60",
+  "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80",
 ];
 
 export default function SidebarMenu() {
