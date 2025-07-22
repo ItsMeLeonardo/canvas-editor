@@ -35,6 +35,8 @@ export default function App() {
   const layerRef = useRef<Konva.Layer>(null);
   const stageRef = useRef<Konva.Stage>(null);
 
+  console.log('ello');
+
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
